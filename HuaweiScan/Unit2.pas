@@ -2,7 +2,7 @@
 
 interface
 
-{$DEFINE OrangeSDK_TEST}
+//{$DEFINE OrangeSDK_TEST}
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
@@ -35,7 +35,8 @@ uses
 
 
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.StdCtrls, FMX.ScrollBox, FMX.Memo;
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.ScrollBox, FMX.Memo,
+  FMX.Memo.Types;
 
 type
   TForm2 = class(TForm)
@@ -74,22 +75,28 @@ implementation
 {$R *.fmx}
 
 procedure TForm2.Button1Click(Sender: TObject);
+{$IFDEF ANDROID}
 var
   AIntent:JIntent;
+{$ENDIF}
 begin
+  {$IFDEF ANDROID}
   FStartTime:=Now;
 
 
   AIntent:=TJIntent.JavaClass.init;
   AIntent.setClassName(TAndroidHelper.Context,StringToJString('com.huawei.hms.hmsscankit.ScanKitActivity'));
   TAndroidHelper.Activity.startActivityForResult(AIntent,666);
+  {$ENDIF}
 
 end;
 
 procedure TForm2.FormShow(Sender: TObject);
 begin
   FMX.Types.Log.d('OrangeUI TForm2.FormCreate');
+  {$IFDEF ANDROID}
   FMessageSubscriptionID := TMessageManager.DefaultManager.SubscribeToMessage(TMessageResultNotification, HandleActivityMessage);
+  {$ENDIF}
 
   //申请权限
   {$IFDEF ANDROID}
@@ -109,14 +116,17 @@ end;
 
 procedure TForm2.HandleActivityMessage(const Sender: TObject;
   const M: TMessage);
+{$IFDEF ANDROID}
 var
   AJParcelable:JParcelable;
   AJHmsScan:JHmsScan;
   AResultString:String;
   AIsNeedContinue:Boolean;
+{$ENDIF}
 begin
   FMX.Types.Log.d('OrangeUI TForm2.HandleActivityMessage Begin');
 
+  {$IFDEF ANDROID}
   if TMessageResultNotification(M).RequestCode = 666 then
   begin
     FMX.Types.Log.d('OrangeUI TForm2.HandleActivityMessage 666 1');
@@ -153,6 +163,7 @@ begin
 
 
   FMX.Types.Log.d('OrangeUI TForm2.HandleActivityMessage End');
+  {$ENDIF}
 
 
 end;
